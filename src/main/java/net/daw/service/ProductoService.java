@@ -1,6 +1,8 @@
 package net.daw.service;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.sql.Connection;
 import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
@@ -155,7 +157,7 @@ public class ProductoService {
 
     }
 
-    public ReplyBean loaddata() throws Exception {
+    public ReplyBean fill() throws Exception {
         ReplyBean oReplyBean;
         ConnectionInterface oConnectionPool = null;
         Connection oConnection;
@@ -170,7 +172,7 @@ public class ProductoService {
             for (ProductoBean producto : productos) {
                 oProductoDao.create(producto);
             }
-            Gson oGson = new Gson();
+            Gson oGson = (new GsonBuilder()).excludeFieldsWithoutExposeAnnotation().create();
             oReplyBean = new ReplyBean(200, oGson.toJson("Productos creados: " + number));
         } catch (Exception ex) {
             oReplyBean = new ReplyBean(500,

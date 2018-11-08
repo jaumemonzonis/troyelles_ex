@@ -181,27 +181,22 @@ public class UsuarioService {
 	}
 
 	public ReplyBean fill() throws Exception {
-		ReplyBean oReplyBean;
-		ConnectionInterface oConnectionPool = null;
-		Connection oConnection;
+		 ReplyBean oReplyBean;
+	        ConnectionInterface oConnectionPool = null;
+	        Connection oConnection;
+	        ArrayList<UsuarioBean> usuarios = new ArrayList<>();
+	        RellenarService oRellenarService = new RellenarService();
 		try {
-			Integer number = Integer.parseInt(oRequest.getParameter("number"));
-			Gson oGson = (new GsonBuilder()).excludeFieldsWithoutExposeAnnotation().create();
-			oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
-			oConnection = oConnectionPool.newConnection();
-			UsuarioDao oUsuarioDao = new UsuarioDao(oConnection, ob);
-			UsuarioBean oUsuarioBean = new UsuarioBean();
-			for (int i = 1; i <= number; i++) {
-				oUsuarioBean.setDni("765934875A");
-				oUsuarioBean.setNombre("Rigoberto");
-				oUsuarioBean.setApe1("Pérez");
-				oUsuarioBean.setApe2("Gómez");
-				oUsuarioBean.setLogin("ripego");
-				oUsuarioBean.setPass("hola");
-				oUsuarioBean.setId_tipoUsuario(2);
-				oUsuarioBean = oUsuarioDao.create(oUsuarioBean);
-			}
-			oReplyBean = new ReplyBean(200, oGson.toJson(number));
+			 Integer number = Integer.parseInt(oRequest.getParameter("number"));
+	            oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
+	            oConnection = oConnectionPool.newConnection();
+	            UsuarioDao oUsuarioDao = new  UsuarioDao(oConnection, ob);
+	            usuarios = oRellenarService.RellenarUsuario(number);
+	            for (UsuarioBean usuario : usuarios) {
+	            	oUsuarioDao.create(usuario);
+	            }
+	            Gson oGson = (new GsonBuilder()).excludeFieldsWithoutExposeAnnotation().create();
+	            oReplyBean = new ReplyBean(200, oGson.toJson("Productos creados: " + number));
 		} catch (Exception ex) {
 			throw new Exception("ERROR: Service level: create method: " + ob + " object", ex);
 		} finally {
