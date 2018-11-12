@@ -35,7 +35,7 @@ public class TipousuarioService {
 			oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
 			oConnection = oConnectionPool.newConnection();
 			TipousuarioDao oTipousuarioDao = new TipousuarioDao(oConnection, ob);
-			TipousuarioBean oTipousuarioBean = oTipousuarioDao.get(id, 1);
+			TipousuarioBean oTipousuarioBean = oTipousuarioDao.get(id,1);
 			Gson oGson = new Gson();
 			oReplyBean = new ReplyBean(200, oGson.toJson(oTipousuarioBean));
 		} catch (Exception ex) {
@@ -125,7 +125,7 @@ public class TipousuarioService {
 			oConnection = oConnectionPool.newConnection();
 			TipousuarioDao oTipousuarioDao = new TipousuarioDao(oConnection, ob);
 			iRes = oTipousuarioDao.update(oTipousuarioBean);
-			oReplyBean = new ReplyBean(200, Integer.toString(iRes));
+                        oReplyBean = new ReplyBean(200,Integer.toString(iRes));
 		} catch (Exception ex) {
 			throw new Exception("ERROR: Service level: update method: " + ob + " object", ex);
 		} finally {
