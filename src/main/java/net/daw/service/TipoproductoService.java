@@ -8,6 +8,7 @@ package net.daw.service;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import net.daw.bean.ReplyBean;
 import net.daw.bean.TipoproductoBean;
@@ -16,6 +17,7 @@ import net.daw.constant.ConnectionConstants;
 import net.daw.dao.TipoproductoDao;
 import net.daw.factory.ConnectionFactory;
 import net.daw.helper.EncodingHelper;
+import net.daw.helper.ParameterCook;
 
 /**
  *
@@ -40,7 +42,7 @@ public class TipoproductoService {
 			oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
 			oConnection = oConnectionPool.newConnection();
 			TipoproductoDao oTipoproductoDao = new TipoproductoDao(oConnection, ob);
-			TipoproductoBean oTipoproductoBean = oTipoproductoDao.get(id);
+			TipoproductoBean oTipoproductoBean = oTipoproductoDao.get(id,1);
 			Gson oGson = new Gson();
 			oReplyBean = new ReplyBean(200, oGson.toJson(oTipoproductoBean));
 		} catch (Exception ex) {
@@ -118,7 +120,7 @@ public class TipoproductoService {
 
 	public ReplyBean update() throws Exception {
 		int iRes = 0;
-		ReplyBean oReplyBean = null;
+		ReplyBean oReplyBean;
 		ConnectionInterface oConnectionPool = null;
 		Connection oConnection;
 		try {
@@ -130,8 +132,7 @@ public class TipoproductoService {
 			oConnection = oConnectionPool.newConnection();
 			TipoproductoDao oTipoproductoDao = new TipoproductoDao(oConnection, ob);
 			iRes = oTipoproductoDao.update(oTipoproductoBean);
-			oReplyBean.setStatus(200);
-			oReplyBean.setJson(Integer.toString(iRes));
+                        oReplyBean = new ReplyBean(200, Integer.toString(iRes));
 		} catch (Exception ex) {
 			throw new Exception("ERROR: Service level: update method: " + ob + " object", ex);
 		} finally {
@@ -147,10 +148,11 @@ public class TipoproductoService {
 		try {
 			Integer iRpp = Integer.parseInt(oRequest.getParameter("rpp"));
 			Integer iPage = Integer.parseInt(oRequest.getParameter("page"));
+                        HashMap<String, String> hmOrder = ParameterCook.getOrderParams(oRequest.getParameter("order"));
 			oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
 			oConnection = oConnectionPool.newConnection();
 			TipoproductoDao oTipoproductoDao = new TipoproductoDao(oConnection, ob);
-			ArrayList<TipoproductoBean> alTipoproductoBean = oTipoproductoDao.getpage(iRpp, iPage);
+			ArrayList<TipoproductoBean> alTipoproductoBean = oTipoproductoDao.getpage(iRpp, iPage, hmOrder, 1);
 			Gson oGson = new Gson();
 			oReplyBean = new ReplyBean(200, oGson.toJson(alTipoproductoBean));
 		} catch (Exception ex) {

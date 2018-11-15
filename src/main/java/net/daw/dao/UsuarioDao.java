@@ -197,4 +197,33 @@ public class UsuarioDao {
 		return alUsuarioBean;
 
 	}
+    public UsuarioBean login(String strUserName, String strPassword) throws Exception {
+        String strSQL = "SELECT * FROM " + ob + " WHERE login=? AND pass=?";
+        UsuarioBean oUsuarioBean;
+        ResultSet oResultSet = null;
+        PreparedStatement oPreparedStatement = null;
+        try {
+            oPreparedStatement = oConnection.prepareStatement(strSQL);
+            oPreparedStatement.setString(1, strUserName);
+            oPreparedStatement.setString(2, strPassword);
+            oResultSet = oPreparedStatement.executeQuery();
+            if (oResultSet.next()) {
+                oUsuarioBean = new UsuarioBean();
+                oUsuarioBean.fill(oResultSet, oConnection, 1);
+            } else {
+                oUsuarioBean = null;
+            }
+        } catch (SQLException e) {
+            throw new Exception("Error en Dao get de " + ob, e);
+        } finally {
+            if (oResultSet != null) {
+                oResultSet.close();
+            }
+            if (oPreparedStatement != null) {
+                oPreparedStatement.close();
+            }
+        }
+        return oUsuarioBean;
+    }
+
 }

@@ -5,14 +5,18 @@ import com.google.gson.GsonBuilder;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import net.daw.bean.ReplyBean;
+import net.daw.bean.UsuarioBean;
 import net.daw.bean.ProductoBean;
 import net.daw.connection.publicinterface.ConnectionInterface;
 import net.daw.constant.ConnectionConstants;
 import net.daw.dao.ProductoDao;
+import net.daw.dao.UsuarioDao;
 import net.daw.factory.ConnectionFactory;
 import net.daw.helper.EncodingHelper;
+import net.daw.helper.ParameterCook;
 
 public class ProductoService {
 
@@ -34,7 +38,7 @@ public class ProductoService {
             oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
             oConnection = oConnectionPool.newConnection();
             ProductoDao oProductoDao = new ProductoDao(oConnection, ob);
-            ProductoBean oProductoBean = oProductoDao.get(id);
+            ProductoBean oProductoBean = oProductoDao.get(id, 1);
             Gson oGson = new Gson();
             oReplyBean = new ReplyBean(200, oGson.toJson(oProductoBean));
         } catch (Exception ex) {
@@ -88,13 +92,14 @@ public class ProductoService {
 
     }
 
+
     public ReplyBean create() throws Exception {
         ReplyBean oReplyBean;
         ConnectionInterface oConnectionPool = null;
         Connection oConnection;
         try {
             String strJsonFromClient = oRequest.getParameter("json");
-            Gson oGson = new Gson();
+            Gson oGson = (new GsonBuilder()).excludeFieldsWithoutExposeAnnotation().create();
             ProductoBean oProductoBean = new ProductoBean();
             oProductoBean = oGson.fromJson(strJsonFromClient, ProductoBean.class);
             oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
@@ -108,7 +113,7 @@ public class ProductoService {
             oConnectionPool.disposeConnection();
         }
         return oReplyBean;
-    }
+}
 
     public ReplyBean update() throws Exception {
         int iRes = 0;
@@ -117,15 +122,14 @@ public class ProductoService {
         Connection oConnection;
         try {
             String strJsonFromClient = oRequest.getParameter("json");
-            Gson oGson = new Gson();
-            ProductoBean oProductoBean = new ProductoBean();
+            Gson oGson = (new GsonBuilder()).excludeFieldsWithoutExposeAnnotation().create();
+           ProductoBean oProductoBean = new ProductoBean();
             oProductoBean = oGson.fromJson(strJsonFromClient, ProductoBean.class);
             oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
             oConnection = oConnectionPool.newConnection();
             ProductoDao oProductoDao = new ProductoDao(oConnection, ob);
             iRes = oProductoDao.update(oProductoBean);
-            oReplyBean.setStatus(200);
-            oReplyBean.setJson(Integer.toString(iRes));
+            oReplyBean = new ReplyBean(200, Integer.toString(iRes));
         } catch (Exception ex) {
             throw new Exception("ERROR: Service level: update method: " + ob + " object", ex);
         } finally {
@@ -141,10 +145,11 @@ public class ProductoService {
         try {
             Integer iRpp = Integer.parseInt(oRequest.getParameter("rpp"));
             Integer iPage = Integer.parseInt(oRequest.getParameter("page"));
+            HashMap<String, String> hmOrder = ParameterCook.getOrderParams(oRequest.getParameter("order"));
             oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
             oConnection = oConnectionPool.newConnection();
             ProductoDao oProductoDao = new ProductoDao(oConnection, ob);
-            ArrayList<ProductoBean> alProductoBean = oProductoDao.getpage(iRpp, iPage);
+            ArrayList<ProductoBean> alProductoBean = oProductoDao.getpage(iRpp, iPage,hmOrder,1);
             Gson oGson = new Gson();
             oReplyBean = new ReplyBean(200, oGson.toJson(alProductoBean));
         } catch (Exception ex) {
@@ -172,7 +177,7 @@ public class ProductoService {
             for (ProductoBean producto : productos) {
                 oProductoDao.create(producto);
             }
-            Gson oGson = (new GsonBuilder()).excludeFieldsWithoutExposeAnnotation().create();
+            Gson oGson = new Gson();
             oReplyBean = new ReplyBean(200, oGson.toJson("Productos creados: " + number));
         } catch (Exception ex) {
             oReplyBean = new ReplyBean(500,

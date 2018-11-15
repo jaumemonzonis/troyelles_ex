@@ -25,7 +25,7 @@ public class RellenarService {
             resultadoProducto.setDesc(desc[randomMath(maxDatos)] + " " + desc2[randomMath(maxDatos)]);
             resultadoProducto.setPrecio((float) (((int)(Math.random()*10000))* 0.01));
             resultadoProducto.setFoto(foto);
-            resultadoProducto.setId_tipoProducto(id_tipoProducto[randomMath(maxDatos)]);
+            //resultadoProducto.setId_tipoProducto(id_tipoProducto[randomMath(maxDatos)]);
             resultadoProducto.setExistencias(existencias[randomMath(maxDatos)]);
             resultado.add(resultadoProducto);
         }
