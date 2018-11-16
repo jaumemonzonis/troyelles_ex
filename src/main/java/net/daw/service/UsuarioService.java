@@ -19,6 +19,7 @@ import net.daw.connection.publicinterface.ConnectionInterface;
 import net.daw.constant.ConnectionConstants;
 import net.daw.dao.UsuarioDao;
 import net.daw.factory.ConnectionFactory;
+import net.daw.helper.EncodingHelper;
 import net.daw.helper.ParameterCook;
 
 /**
@@ -232,26 +233,31 @@ public class UsuarioService {
         Connection oConnection;
         String strLogin = oRequest.getParameter("user");
         String strPassword = oRequest.getParameter("pass");
+        try {
+            oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
+            oConnection = oConnectionPool.newConnection();
+            UsuarioDao oUsuarioDao = new UsuarioDao(oConnection, ob);
 
-        oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
-        oConnection = oConnectionPool.newConnection();
-        UsuarioDao oUsuarioDao = new UsuarioDao(oConnection, ob);
-
-        UsuarioBean oUsuarioBean = oUsuarioDao.login(strLogin, strPassword);
-        if (oUsuarioBean.getId() > 0) {
-            oRequest.getSession().setAttribute("user", oUsuarioBean);
-            Gson oGson = (new GsonBuilder()).excludeFieldsWithoutExposeAnnotation().create();
-            oReplyBean = new ReplyBean(200, oGson.toJson(oUsuarioBean));
-        } else {
-            //throw new Exception("ERROR Bad Authentication: Service level: get page: " + ob + " object");
-            oReplyBean = new ReplyBean(401, "Bad Authentication");
+            UsuarioBean oUsuarioBean = oUsuarioDao.login(strLogin, strPassword);
+            if (oUsuarioBean.getId() > 0) {
+                oRequest.getSession().setAttribute("user", oUsuarioBean);
+                Gson oGson = (new GsonBuilder()).excludeFieldsWithoutExposeAnnotation().create();
+                oReplyBean = new ReplyBean(200, oGson.toJson(oUsuarioBean));
+            } else {
+                //throw new Exception("ERROR Bad Authentication: Service level: get page: " + ob + " object");
+                oReplyBean = new ReplyBean(401, "Bad Authentication");
+            }
+        } catch (Exception ex) {
+            throw new Exception("ERROR: Service level: login method: " + ob + " object", ex);
+        } finally {
+            oConnectionPool.disposeConnection();
         }
         return oReplyBean;
     }
 
     public ReplyBean logout() throws Exception {
         oRequest.getSession().invalidate();
-        return new ReplyBean(200, "OK");
+        return new ReplyBean(200, EncodingHelper.quotate("OK"));
     }
 
     public ReplyBean check() throws Exception {

@@ -33,7 +33,7 @@ public class ProductoDao {
 	public ProductoBean get(int id, Integer expand) throws Exception {
 		String strSQL = "SELECT * FROM " + ob + " WHERE id=?";
 		ProductoBean oProductoBean;
-                TipoproductoBean oTipoproductoBean;
+        TipoproductoBean oTipoproductoBean;
 		ResultSet oResultSet = null;
 		PreparedStatement oPreparedStatement = null;
 		try {
