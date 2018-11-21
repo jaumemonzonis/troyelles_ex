@@ -42,7 +42,7 @@ public class ProductoDao {
 			oResultSet = oPreparedStatement.executeQuery();
 			if (oResultSet.next()) {
 				oProductoBean = new ProductoBean();
-                                oTipoproductoBean = new TipoproductoBean();
+                oTipoproductoBean = new TipoproductoBean();
                                 
 				oProductoBean.setId(oResultSet.getInt("id"));
                                 oProductoBean.setCodigo(oResultSet.getString("codigo"));
@@ -51,6 +51,8 @@ public class ProductoDao {
                                 oProductoBean.setPrecio(oResultSet.getFloat("precio"));
                                 oProductoBean.setFoto(oResultSet.getString("foto"));
                                 oTipoproductoBean.setId(oResultSet.getInt("id_tipoProducto"));
+                                oTipoproductoBean.setDesc(oResultSet.getString("desc"));
+                             
                                 oProductoBean.setObj_tipoProducto(oTipoproductoBean);
 			} else {
 				oProductoBean= null;

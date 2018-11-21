@@ -12,6 +12,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import net.daw.bean.ReplyBean;
 import net.daw.bean.TipoproductoBean;
+import net.daw.bean.UsuarioBean;
 import net.daw.connection.publicinterface.ConnectionInterface;
 import net.daw.constant.ConnectionConstants;
 import net.daw.dao.TipoproductoDao;
@@ -32,11 +33,19 @@ public class TipoproductoService {
 		this.oRequest = oRequest;
 		ob = oRequest.getParameter("ob");
 	}
-
+    protected Boolean checkPermission(String strMethodName) {
+        UsuarioBean oUsuarioBean = (UsuarioBean) oRequest.getSession().getAttribute("user");
+        if (oUsuarioBean != null) {
+            return true;
+        } else {
+            return false;
+        }
+}
 	public ReplyBean get() throws Exception {
 		ReplyBean oReplyBean;
 		ConnectionInterface oConnectionPool = null;
 		Connection oConnection;
+		  if (this.checkPermission("get")) {
 		try {
 			Integer id = Integer.parseInt(oRequest.getParameter("id"));
 			oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
@@ -49,16 +58,18 @@ public class TipoproductoService {
 			throw new Exception("ERROR: Service level: get method: " + ob + " object", ex);
 		} finally {
 			oConnectionPool.disposeConnection();
-		}
-
-		return oReplyBean;
-
-	}
+        }
+    } else {
+        oReplyBean = new ReplyBean(401, "Unauthorized");
+    }
+    return oReplyBean;
+}
 
 	public ReplyBean remove() throws Exception {
 		ReplyBean oReplyBean;
 		ConnectionInterface oConnectionPool = null;
 		Connection oConnection;
+        if (this.checkPermission("remove")) {
 		try {
 			Integer id = Integer.parseInt(oRequest.getParameter("id"));
 			oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
@@ -70,15 +81,18 @@ public class TipoproductoService {
 			throw new Exception("ERROR: Service level: remove method: " + ob + " object", ex);
 		} finally {
 			oConnectionPool.disposeConnection();
-		}
-		return oReplyBean;
-
-	}
+        }
+    } else {
+        oReplyBean = new ReplyBean(401, "Unauthorized");
+    }
+    return oReplyBean;
+}
 
 	public ReplyBean getcount() throws Exception {
 		ReplyBean oReplyBean;
 		ConnectionInterface oConnectionPool = null;
 		Connection oConnection;
+	       if (this.checkPermission("getcount")) {
 		try {
 			oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
 			oConnection = oConnectionPool.newConnection();
@@ -90,16 +104,18 @@ public class TipoproductoService {
 			throw new Exception("ERROR: Service level: getcount method: " + ob + " object", ex);			
 		} finally {
 			oConnectionPool.disposeConnection();
-		}
-
-		return oReplyBean;
-
-	}
+        }
+    } else {
+        oReplyBean = new ReplyBean(401, "Unauthorized");
+    }
+    return oReplyBean;
+}
 
 	public ReplyBean create() throws Exception {
 		ReplyBean oReplyBean;
 		ConnectionInterface oConnectionPool = null;
 		Connection oConnection;
+        if (this.checkPermission("create")) {
 		try {
 			String strJsonFromClient = oRequest.getParameter("json");
 			Gson oGson = new Gson();
@@ -114,15 +130,19 @@ public class TipoproductoService {
 			throw new Exception("ERROR: Service level: create method: " + ob + " object", ex);
 		} finally {
 			oConnectionPool.disposeConnection();
-		}
-		return oReplyBean;
-	}
+        }
+    } else {
+        oReplyBean = new ReplyBean(401, "Unauthorized");
+    }
+    return oReplyBean;
+}
 
 	public ReplyBean update() throws Exception {
 		int iRes = 0;
 		ReplyBean oReplyBean;
 		ConnectionInterface oConnectionPool = null;
 		Connection oConnection;
+	       if (this.checkPermission("update")) {
 		try {
 			String strJsonFromClient = oRequest.getParameter("json");
 			Gson oGson = new Gson();
@@ -137,14 +157,18 @@ public class TipoproductoService {
 			throw new Exception("ERROR: Service level: update method: " + ob + " object", ex);
 		} finally {
 			oConnectionPool.disposeConnection();
-		}
-		return oReplyBean;
-	}
+        }
+    } else {
+        oReplyBean = new ReplyBean(401, "Unauthorized");
+    }
+    return oReplyBean;
+}
 
 	public ReplyBean getpage() throws Exception {
 		ReplyBean oReplyBean;
 		ConnectionInterface oConnectionPool = null;
 		Connection oConnection;
+        if (this.checkPermission("getpage")) {
 		try {
 			Integer iRpp = Integer.parseInt(oRequest.getParameter("rpp"));
 			Integer iPage = Integer.parseInt(oRequest.getParameter("page"));
@@ -159,9 +183,10 @@ public class TipoproductoService {
 			throw new Exception("ERROR: Service level: getpage method: " + ob + " object", ex);
 		} finally {
 			oConnectionPool.disposeConnection();
-		}
-
-		return oReplyBean;
-
-	}
+        }
+    } else {
+        oReplyBean = new ReplyBean(401, "Unauthorized");
+    }
+    return oReplyBean;
+}
 }

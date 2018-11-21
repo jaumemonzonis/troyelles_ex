@@ -5,8 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.daw.bean.TipousuarioBean;
+import net.daw.bean.UsuarioBean;
+import net.daw.helper.SqlBuilder;
 
 public class TipousuarioDao {
 
@@ -137,8 +140,9 @@ public class TipousuarioDao {
 		return iResult;
 	}
 
-	public ArrayList<TipousuarioBean> getpage(int iRpp, int iPage, int expand) throws Exception {
+	public ArrayList<TipousuarioBean> getpage(int iRpp, int iPage, HashMap<String, String> hmOrder, int expand) throws Exception {
 		String strSQL = "SELECT * FROM " + ob;
+		strSQL += SqlBuilder.buildSqlOrder(hmOrder);
 		ArrayList<TipousuarioBean> alTipousuarioBean;
 		if (iRpp > 0 && iRpp < 100000 && iPage > 0 && iPage < 100000000) {
 			strSQL += " LIMIT " + (iPage - 1) * iRpp + ", " + iRpp;

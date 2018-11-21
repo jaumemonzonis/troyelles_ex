@@ -100,40 +100,5 @@ public class ProductoBean {
         return this;
         
 }
-    public String getColumns(){
-        String strColumns="";
-        strColumns += "id,";
-        strColumns += "codigo,";
-        strColumns += "desc,";
-        strColumns += "existencias,";
-        strColumns += "precio,";
-        strColumns += "foto";
-        strColumns += "id_tipoProducto";
-        return strColumns;
-    }
-    
-    public String getValues(){
-        String strColumns = "";
-        strColumns += "null,";
-        strColumns += EncodingHelper.quotate(codigo) + ",";
-        strColumns += EncodingHelper.quotate(desc) + ",";
-        strColumns += existencias + ",";
-        strColumns += precio + ",";
-        strColumns += EncodingHelper.quotate(foto) + ",";
-        strColumns += obj_tipoProducto.getId() + ",";
-        return strColumns;
-    }
-    
-    public String getPairs(){
-        String strPairs = "";
-        strPairs += "id=" + id + ",";
-        strPairs += "codigo=" + EncodingHelper.quotate(codigo) + ",";
-        strPairs += "desc=" + EncodingHelper.quotate(desc) + ",";
-        strPairs += "existencias=" + existencias + ",";
-        strPairs += "precio=" + precio + ",";
-        strPairs += "foto=" + EncodingHelper.quotate(foto) + ",";
-        strPairs += "id_tipoProducto=" + obj_tipoProducto.getId() + ",";
-        strPairs += " WHERE id=" + id;
-        return strPairs;
-    }
+ 
 }
