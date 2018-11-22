@@ -13,7 +13,7 @@ import net.daw.helper.EncodingHelper;
 
 /**
  *
- * @author a044531896d
+ * @author a044531896deee
  */
 public class ProductoBean {
     @Expose
