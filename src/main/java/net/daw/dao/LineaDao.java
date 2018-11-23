@@ -98,7 +98,31 @@ public class LineaDao {
         }
         return res;
     }
+    
+    public int getcountxlinea(int id) throws Exception {
+        String strSQL = "SELECT COUNT(id) from " + ob + " where id_factura=" + id;
+        int resultado = 0;
+        ResultSet oResultSet = null;
+        PreparedStatement oPreparedStatement = null;
+        try {
+            oPreparedStatement = oConnection.prepareStatement(strSQL);
+            oResultSet = oPreparedStatement.executeQuery();
+            while(oResultSet.next()){
+                resultado = oResultSet.getInt(1);
+            }
+        } catch (Exception e) {
+            throw new Exception("Error en Dao getCountLinea de " + ob);
+        } finally {
+            if (oResultSet != null) {
+                oResultSet.close();
+            }
+            if (oPreparedStatement != null) {
+                oPreparedStatement.close();
+            }
+        }
+        return resultado;
 
+}
     public LineaBean create(LineaBean oLineaBean) throws Exception {
         String strSQL = "INSERT INTO " + ob + " (`id`, `cantidad`, `id_producto`, `id_factura`) VALUES (NULL, ?,?,?); ";
         ResultSet oResultSet = null;
@@ -185,5 +209,39 @@ public class LineaDao {
         return alLineaBean;
 
     }
+    public ArrayList<LineaBean> getpagexlinea(int iRpp, int iPage, HashMap<String, String> hmOrder, Integer expand, Integer id_factura) throws Exception {
+        String strSQL = "SELECT * FROM " + ob;
+    	strSQL += " WHERE id_factura=" + id_factura;
+        strSQL += SqlBuilder.buildSqlOrder(hmOrder);
+        ArrayList<LineaBean> alLineaBean;
+        if (iRpp > 0 && iRpp < 100000 && iPage > 0 && iPage < 100000000) {
+        
+            strSQL += " LIMIT " + (iPage - 1) * iRpp + ", " + iRpp;
+            ResultSet oResultSet = null;
+            PreparedStatement oPreparedStatement = null;
+            try {
+                oPreparedStatement = oConnection.prepareStatement(strSQL);
+                oResultSet = oPreparedStatement.executeQuery();
+                alLineaBean = new ArrayList<LineaBean>();
+                while (oResultSet.next()) {
+                	LineaBean oLineaBean = new LineaBean();
+                    oLineaBean.fill(oResultSet, oConnection, expand);
+                    alLineaBean.add(oLineaBean);
+                }
+            } catch (SQLException e) {
+                throw new Exception("Error en Dao getpage de " + ob, e);
+            } finally {
+                if (oResultSet != null) {
+                    oResultSet.close();
+                }
+                if (oPreparedStatement != null) {
+                    oPreparedStatement.close();
+                }
+            }
+        } else {
+            throw new Exception("Error en Dao getpage de " + ob);
+        }
+        return alLineaBean;
 
+    }
 }
