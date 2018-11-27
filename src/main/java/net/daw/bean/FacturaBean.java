@@ -8,13 +8,16 @@ package net.daw.bean;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 import com.google.gson.annotations.Expose;
 
 import net.daw.dao.LineaDao;
 import net.daw.dao.UsuarioDao;
+import net.daw.helper.EncodingHelper;
 
 
 /**
@@ -25,7 +28,7 @@ public class FacturaBean {
 	@Expose
     private int id;
 	@Expose
-    private String fecha;
+	private Date fecha;
 	@Expose
     private double iva;
 	@Expose(serialize=false)
@@ -51,13 +54,13 @@ public class FacturaBean {
         this.id = id;
     }
 
-    public String getFecha() {
+    public Date getFecha() {
         return fecha;
     }
 
-    public void setFecha(String fecha) {
+    public void setFecha(Date fecha) {
         this.fecha = fecha;
-    }
+}
 
     public double getIva() {
         return iva;
@@ -83,19 +86,18 @@ public class FacturaBean {
         this.link_factura = link_factura;
 }
 
-    public FacturaBean fill(ResultSet oResultSet, Connection oConnection, Integer expand) throws SQLException, Exception {
+    public FacturaBean fill(ResultSet oResultSet, Connection oConnection, Integer expand) throws SQLException, Exception{
         this.setId(oResultSet.getInt("id"));
-        this.setFecha(oResultSet.getString("fecha"));
+        this.setFecha(oResultSet.getDate("fecha"));
         this.setIva(oResultSet.getDouble("iva"));
-        if (expand > 0) {
-            UsuarioDao oUsuarioDao = new UsuarioDao(oConnection, "usuario");
-            this.setObj_usuario(oUsuarioDao.get(oResultSet.getInt("id_usuario"), expand));
-            System.out.println(obj_usuario.getId());
-        }
         LineaDao oLineaDao = new LineaDao(oConnection, "linea");
         this.setLink_factura(oLineaDao.getcountxlinea(this.getId()));
+        if(expand > 0){
+            UsuarioDao oUsuarioDao = new UsuarioDao(oConnection, "usuario");
+            this.setObj_usuario(oUsuarioDao.get(oResultSet.getInt("id_usuario"), expand));
+        }
         return this;
-}
+    }
     
     public String getColumns(){
         String strColumns = "";
@@ -107,20 +109,41 @@ public class FacturaBean {
     }
     
     public String getValues(){
+        //Getting the default zone id
+        ZoneId defaultZoneId = ZoneId.systemDefault();
+
+        //Converting the date to Instant
+        Instant instant = fecha.toInstant();
+
+        //Converting the Date to LocalDate
+        LocalDate localDate = instant.atZone(defaultZoneId).toLocalDate();
+
+        
         String strColumns = "";
         strColumns += "null,";
-        strColumns += fecha + ",";
+        strColumns += EncodingHelper.quotate(localDate.toString()) + ",";
         strColumns += iva + ",";
-        strColumns += obj_usuario.getId() + ",";
+        strColumns += id_usuario;
         return strColumns;
     }
     
-    public String getPairs(){
-        String strPairs ="";
+    public String getPairs() {
+
+        //Getting the default zone id
+        ZoneId defaultZoneId = ZoneId.systemDefault();
+
+        //Converting the date to Instant
+        Instant instant = fecha.toInstant();
+
+        //Converting the Date to LocalDate
+        LocalDate localDate = instant.atZone(defaultZoneId).toLocalDate();
+
+
+        String strPairs = "";
         strPairs += "id=" + id + ",";
-        strPairs += "fecha=" + fecha + ",";
+        strPairs += "fecha=" + EncodingHelper.quotate(localDate.toString()) + ",";
         strPairs += "iva=" + iva + ",";
-        strPairs += "id_usuario=" + obj_usuario.getId();
+        strPairs += "id_usuario=" + id_usuario;
         strPairs += " WHERE id=" + id;
         return strPairs;
     }
