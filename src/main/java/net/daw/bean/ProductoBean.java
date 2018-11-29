@@ -11,10 +11,6 @@ import java.sql.ResultSet;
 import net.daw.dao.TipoproductoDao;
 import net.daw.helper.EncodingHelper;
 
-/**
- *
- * @author a044531896deee
- */
 public class ProductoBean {
     @Expose
     private int id;

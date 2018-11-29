@@ -17,7 +17,7 @@ import net.daw.helper.SqlBuilder;
 
 /**
  *
- * @author Ramón
+ * @author Ramï¿½n
  */
 public class UsuarioDao {
 
@@ -202,16 +202,17 @@ public class UsuarioDao {
         UsuarioBean oUsuarioBean;
         ResultSet oResultSet = null;
         PreparedStatement oPreparedStatement = null;
+        oUsuarioBean = new UsuarioBean();
         try {
             oPreparedStatement = oConnection.prepareStatement(strSQL);
             oPreparedStatement.setString(1, strUserName);
             oPreparedStatement.setString(2, strPassword);
             oResultSet = oPreparedStatement.executeQuery();
             if (oResultSet.next()) {
-                oUsuarioBean = new UsuarioBean();
+               
                 oUsuarioBean.fill(oResultSet, oConnection, 1);
             } else {
-                oUsuarioBean = null;
+                oUsuarioBean.setId(0);
             }
         } catch (SQLException e) {
             throw new Exception("Error en Dao get de " + ob, e);

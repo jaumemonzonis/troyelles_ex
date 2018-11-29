@@ -239,7 +239,7 @@ public class UsuarioService {
             UsuarioDao oUsuarioDao = new UsuarioDao(oConnection, ob);
 
             UsuarioBean oUsuarioBean = oUsuarioDao.login(strLogin, strPassword);
-            if (oUsuarioBean.getId() > 0) {
+            if (oUsuarioBean.getId() >= 0) {
                 oRequest.getSession().setAttribute("user", oUsuarioBean);
                 Gson oGson = (new GsonBuilder()).excludeFieldsWithoutExposeAnnotation().create();
                 oReplyBean = new ReplyBean(200, oGson.toJson(oUsuarioBean));

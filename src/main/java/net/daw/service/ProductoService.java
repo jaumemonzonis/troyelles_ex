@@ -49,6 +49,7 @@ public class ProductoService {
             ProductoBean oProductoBean = oProductoDao.get(id, 2);
             Gson oGson = new Gson();
             oReplyBean = new ReplyBean(200, oGson.toJson(oProductoBean));
+        
         } catch (Exception ex) {
             throw new Exception("ERROR: Service level: get method: " + ob + " object", ex);
         } finally {
