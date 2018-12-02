@@ -61,7 +61,7 @@ public class CarritoService implements Serializable{
                 carrito = (ArrayList<CarritoBean>) sesion.getAttribute("carrito");
             }
 
-            //Obtenemos el producto que deseamos añadir al carrito
+            //Obtenemos el producto que deseamos aï¿½adir al carrito
             Integer id = Integer.parseInt(oRequest.getParameter("prod"));
             oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
             oConnection = oConnectionPool.newConnection();
@@ -91,7 +91,7 @@ public class CarritoService implements Serializable{
                 //Si es otro valor es porque el producto esta en el carrito
                 //y vamos actualizar la cantidad
                 Integer cantidad = carrito.get(indice).getCantidad() + 1;
-                if (oProductoBean.getExistencias() > cantidad) {
+                if (oProductoBean.getExistencias() >= cantidad) {
                     carrito.get(indice).setCantidad(cantidad);
                 }
             }
@@ -164,12 +164,19 @@ public class CarritoService implements Serializable{
                     carrito.get(indice).setCantidad(cantidad-1);
                 }else{
                    carrito.remove(indice);
+                   if (carrito.size()<1) {
+                   	sesion.setAttribute("carrito", null);
+                       oReplyBean = new ReplyBean(200, EncodingHelper.quotate("Carrito vacio"));
+                       
+                   } else {
+                	   sesion.setAttribute("carrito", carrito);
+                       oReplyBean = new ReplyBean(200, oGson.toJson(carrito));
+                   }
                 }
             }
             
-            sesion.setAttribute("carrito", carrito);
-
-            oReplyBean = new ReplyBean(200, oGson.toJson(carrito));
+        
+          
         }
         return oReplyBean;
 }
