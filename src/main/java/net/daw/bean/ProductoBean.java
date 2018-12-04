@@ -96,5 +96,19 @@ public class ProductoBean {
         return this;
         
 }
+	
+    public String getPairs(String ob) {
+		String strPairs="";
+		strPairs += "id=" + id + ",";
+		strPairs += "codigo=" + EncodingHelper.quotate(codigo) + ",";
+		strPairs += "producto.desc=" + EncodingHelper.quotate(desc) + ",";
+		strPairs += "existencias=" + existencias + ",";
+		strPairs += "precio=" + precio + ",";
+		strPairs += "foto=" + EncodingHelper.quotate(foto) + ",";
+		strPairs += "id_tipoProducto=" + id_tipoProducto;
+                strPairs += " WHERE id=" + id ;
+		return strPairs;
+		
+	}
  
 }

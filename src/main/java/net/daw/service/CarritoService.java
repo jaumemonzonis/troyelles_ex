@@ -262,9 +262,9 @@ public class CarritoService implements Serializable{
       
             		   oLineaBean.setId_factura(oFacturaBean.getId());
                        oLineaBean.setCantidad(o.getCantidad());
-                       oProductoBean = oProductoDao.get(o.getObj_producto().getId(), 0);
+                       oProductoBean = oProductoDao.get(o.getObj_producto().getId(), 1);
                        oProductoBean.setId(o.getObj_producto().getId());
-                       oProductoBean.setExistencias(oProductoBean.getExistencias() - cant);
+                       oProductoBean.setExistencias(o.getObj_producto().getExistencias()-cant);
                        oProductoDao.update(oProductoBean);
                        oLineaBean.setId_producto(o.getObj_producto().getId());
                        oLineaDao.create(oLineaBean);
