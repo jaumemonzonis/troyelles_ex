@@ -7,6 +7,7 @@ package net.daw.service;
 
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -76,7 +77,7 @@ public class CarritoService implements Serializable{
             oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
             oConnection = oConnectionPool.newConnection();
             ProductoDao oProductoDao = new ProductoDao(oConnection, "producto");
-            ProductoBean oProductoBean = oProductoDao.get(id, 2);
+            ProductoBean oProductoBean = oProductoDao.get(id, 1);
 
             //Para saber si tenemos agregado el producto al carrito de compras
             int indice = -1;
@@ -212,85 +213,81 @@ public class CarritoService implements Serializable{
 }   
     
     public ReplyBean buy() throws Exception {
-    	ReplyBean oReplyBean;
-    	if (checkPermission("buy")) {
-           ConnectionInterface oConnectionPool = null;
-           Connection oConnection;
-           
-          
-           Gson oGson = new Gson();
-           HttpSession sesion = oRequest.getSession();
-           
-           boolean validarExistencias = true;
-           
-          //UsuarioBean oUsuarioBean = (UsuarioBean) oRequest.getSession().getAttribute("user");
-           try {
+    	 ReplyBean oReplyBean;
+        ConnectionInterface oConnectionPool = null;
+        //Obtenemos la sesion actual
+        HttpSession sesion = oRequest.getSession();
+        Connection oConnection = null;
+        try {
 
-               oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
-               oConnection = oConnectionPool.newConnection(); 
-              
-               //Iniciar transaccion abierta
-               oConnection.setAutoCommit(false);
-               	carrito = (ArrayList<CarritoBean>) oRequest.getSession().getAttribute("carrito");
-               int id = ((UsuarioBean) sesion.getAttribute("user")).getId();
-           		//creo factura
+            oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPool);
+            oConnection = oConnectionPool.newConnection();
+            oConnection.setAutoCommit(false);
+            int id = ((UsuarioBean) sesion.getAttribute("user")).getId();
+            carrito = (ArrayList<CarritoBean>) sesion.getAttribute("carrito");
 
-           	   FacturaDao oFacturaDao = new FacturaDao(oConnection,"factura");
-           	   FacturaBean oFacturaBean= new FacturaBean();
-           	   int id_factura = oFacturaBean.getId();
-           	   Date fecha = new Date();
-           	   oFacturaBean.setId(id_factura);
-           	   oFacturaBean.setFecha(fecha);
-           	   oFacturaBean.setIva(21);
-           	   oFacturaBean.setId_usuario(id);
-           	   //oFacturaBean.setId_usuario(oUsuarioBean.getId());
-               oFacturaDao.create(oFacturaBean);
-               
-              // obtener productos del array
-              
-               LineaBean oLineaBean = new LineaBean();
-               LineaDao oLineaDao = new LineaDao(oConnection, "linea");
-               ProductoBean oProductoBean;
-               ProductoDao oProductoDao = new ProductoDao(oConnection, "producto");
-               
-              //compruebo existencias
+            FacturaBean oFacturaBean = new FacturaBean();
+            Date fechaHoraAhora = new Date();
+            oFacturaBean.setId_usuario(id);
+            oFacturaBean.setFecha(fechaHoraAhora);
+            oFacturaBean.setIva(21.0F);
 
-               for (CarritoBean o : carrito) {
-            	   if (o.getCantidad() <= o.getObj_producto().getExistencias()) {
-            		   
-            		   int cant=o.getCantidad();
+
+            FacturaDao oFacturaDao = new FacturaDao(oConnection, "factura");
+
+            FacturaBean oFacturaBeanCreada = oFacturaDao.create(oFacturaBean);
+            int id_factura = oFacturaBeanCreada.getId();
       
-            		   oLineaBean.setId_factura(oFacturaBean.getId());
-                       oLineaBean.setCantidad(o.getCantidad());
-                       oProductoBean = oProductoDao.get(o.getObj_producto().getId(), 1);
-                       oProductoBean.setId(o.getObj_producto().getId());
-                       oProductoBean.setExistencias(o.getObj_producto().getExistencias()-cant);
-                       oProductoDao.update(oProductoBean);
-                       oLineaBean.setId_producto(o.getObj_producto().getId());
-                       oLineaDao.create(oLineaBean);
-                       
-                   } else {
-                       validarExistencias = false;
-                       break;
-                   }
-               	}
-               if (validarExistencias==true) {
-                   oConnection.commit();
-                   oReplyBean = new ReplyBean(200, oGson.toJson(oRequest.getSession().getAttribute("carrito")));
-               } else {
-                   oConnection.rollback();
-                   oReplyBean = new ReplyBean(400, "No hay stock.");
-}
-                      
-           } catch (Exception ex) {
-               throw new Exception("ERROR: Service level: buy method: " + ob + " object", ex);
-           } finally {
-               oConnectionPool.disposeConnection();
-           }
-        
-        } else {
-            oReplyBean = new ReplyBean(401, "Unauthorized");
+            LineaDao oLineaDao;
+            LineaBean oLineaBean;
+            ProductoDao oProductoDao = new ProductoDao(oConnection, "producto");
+            oLineaDao = new LineaDao(oConnection, "linea");
+            ProductoBean oProductoBean;
+
+            for (CarritoBean ib : carrito) {
+
+             
+                int cant = ib.getCantidad();
+
+                oLineaBean = new LineaBean();
+
+                oLineaBean.setId_factura(id_factura);
+                oLineaBean.setId_producto(ib.getObj_producto().getId());
+                oLineaBean.setCantidad(cant);
+
+                oLineaDao.create(oLineaBean);
+
+             
+                oProductoBean = new ProductoBean();
+                oProductoBean.setId(ib.getObj_producto().getId());
+                oProductoBean = ib.getObj_producto();
+                oProductoBean.setExistencias(oProductoBean.getExistencias() - cant);
+                oProductoDao.update(oProductoBean);
+
+            }
+
+            oConnection.commit();
+
+            carrito.clear();
+            sesion.setAttribute("carrito", carrito);
+
+            oReplyBean = new ReplyBean(200, EncodingHelper.quotate("Factura n� " + id_factura + " creada con �xito"));
+
+        } catch (Exception e) {
+
+            try {
+                oConnection.rollback();
+            } catch (SQLException excep) {
+
+            }
+
+            oReplyBean = new ReplyBean(500, "Error en buy carritoService: " + e.getMessage());
+        } finally {
+            oConnectionPool.disposeConnection();
         }
-    	   return new ReplyBean(200, oGson.toJson(oRequest.getSession()));
-}
+
+        return oReplyBean;
+
+    }
+
 }

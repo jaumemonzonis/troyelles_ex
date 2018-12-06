@@ -60,6 +60,8 @@ public class LineaService {
 			oReplyBean = new ReplyBean(200, oGson.toJson(oLineaBean));
 		} catch (Exception ex) {
 			throw new Exception("ERROR: Service level: get method: " + ob + " object", ex);
+		} finally {
+			oConnectionPool.disposeConnection();
         }
     } else {
         oReplyBean = new ReplyBean(401, "Unauthorized");

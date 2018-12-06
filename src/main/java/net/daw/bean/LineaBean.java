@@ -14,19 +14,19 @@ import net.daw.dao.ProductoDao;
 
 public class LineaBean {
 
-	  //@Expose
+	@Expose
     private int id;
-    //@Expose
+    @Expose
     private int cantidad;
-    // @Expose(serialize = false)
+    @Expose(serialize = false)
     private int id_producto;
-    // @Expose(serialize = false)
+    @Expose(serialize = false)
     private int id_factura;
-    //@Expose(deserialize = false)
+    @Expose(deserialize = false)
     private ProductoBean obj_Producto;
-    // @Expose(deserialize = false)
+    @Expose(deserialize = false)
     private FacturaBean obj_Factura;
-    // @Expose(deserialize = false)
+    
     public ProductoBean getObj_Producto() {
         return obj_Producto;
     }
